@@ -1,10 +1,17 @@
 <?php
 
 require('vendor/autoload.php');
+$config = require('configuration.php');
 
 use Facebook\FacebookRequest;
 use Facebook\FacebookSession;
+use RandomLib\Factory;
 
+##########################################################
+## Use the Facebook SDK to fetch all comments on a post ##
+##########################################################
+
+FacebookSession::setDefaultApplication($config['app-id'], $config['app-secret']);
 $session = FacebookSession::newAppSession();
 
 $postId = '813531995360181'; // speakers
@@ -33,11 +40,18 @@ while ($request) {
 	$request = $response->getRequestForNextPage();
 }
 
+############################
+## Select a random winner ##
+############################
+
 $keys  = array_keys($users);
 $count = count($keys);
-$winner = $keys[rand(0, $count-1)];
+
+$factory   = new Factory;
+$generator = $factory->getMediumStrengthGenerator();
+$index     = $generator->generateInt(0, $count-1);
+
+$winner = $users[$keys[$index]];
 
 echo "Unique posters: {$count}\n\r";
-echo "Winner: {$users[$winner]['name']}, comment: {$users[$winner]['msg']}\n\r";
-
-//var_dump($graphObject); exit;
+echo "Winner: {$winner['name']}, comment: {$winner['msg']}\n\r";
